@@ -2,7 +2,7 @@
 'use strict';
 
 var Faye = {
-  VERSION:          '1.1.0',
+  VERSION:          '1.1.1',
 
   BAYEUX_VERSION:   '1.0',
   ID_LENGTH:        160,
@@ -1530,7 +1530,6 @@ Faye.Dispatcher = Faye.Class({
   },
 
   sendMessage: function(message, timeout, options) {
-    if (!this._transport) return;
     options = options || {};
 
     var id       = message.id,
@@ -1548,6 +1547,7 @@ Faye.Dispatcher = Faye.Class({
   },
 
   _sendEnvelope: function(envelope) {
+    if (!this._transport) return;
     if (envelope.request || envelope.timer) return;
 
     var message   = envelope.message,
@@ -1730,6 +1730,7 @@ Faye.Transport = Faye.extend(Faye.Class({
   },
 
   _receive: function(replies) {
+    if (!replies) return;
     replies = [].concat(replies);
 
     this.debug('Client ? received from ? via ?: ?',
@@ -2565,9 +2566,9 @@ Faye.Transport.EventSource = Faye.extend(Faye.Class(Faye.Transport, {
     var sockets = dispatcher.transports.eventsource = dispatcher.transports.eventsource || {},
         id      = dispatcher.clientId;
 
-    endpoint = Faye.copyObject(endpoint);
-    endpoint.pathname += '/' + (id || '');
-    var url = Faye.URI.stringify(endpoint);
+    var url = Faye.copyObject(endpoint);
+    url.pathname += '/' + (id || '');
+    url = Faye.URI.stringify(url);
 
     sockets[url] = sockets[url] || new this(dispatcher, endpoint);
     return sockets[url];
